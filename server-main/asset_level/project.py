@@ -1,6 +1,11 @@
 from random import randint
 import pygame
 from socket import *
+# подключаемся к серверу
+client = socket(AF_INET, SOCK_STREAM)
+client.connect(("localhost", 2118))
+ac = client.recv(64).decode()
+print(ac)
 
 pygame.init()  # запускаем модули pygame
 wind = pygame.display.set_mode((1000, 700))  # окно игры
@@ -24,9 +29,12 @@ class Ball:  # класс шарики
             text = font.render(self.name, True, (255, 255, 255))
             wind.blit(text, (self.rect.x - 50, self.rect.y - 20))  # рисуем имя над игроком
 
-# подключаемся к серверу
-client = socket(AF_INET, SOCK_STREAM)
-client.connect(("localhost", 2118))
+dat = ac.split(",")
+my_id = int([0])
+my_x = int([1])
+my_y = int([2])
+my_rad = int([3])
+
 
 # создаём еду
 eats = []
@@ -65,6 +73,9 @@ while input_active:
             input_active = False
             game = False
 
+
+    
+
     # рисуем поле ввода и текст
     pygame.draw.rect(wind, color_active, input_rect, border_radius=10)
     name_surface = font.render(name_user, True, (0, 0, 0))
@@ -80,21 +91,29 @@ while game:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:  # обработка события для закрытия окна
             game = False
+    try:
+        client.send = f"{my_x},{my_y},{my_id},{my_rad}
+    except:
+        pass
 
     # движение игрока — двигаем фон (еду) игрок стоит на месте
     keys = pygame.key.get_pressed()
     if keys[pygame.K_RIGHT]:
         for b in eats:
             b.rect.x -= 5
+        my_x += 5
     if keys[pygame.K_LEFT]:
         for b in eats:
             b.rect.x += 5
+        my_x -= 5
     if keys[pygame.K_DOWN]:
         for b in eats:
             b.rect.y -= 5
+        my_y += 5
     if keys[pygame.K_UP]:
         for b in eats:
             b.rect.y += 5
+        my_y -= 5
 
     for i in eats:
         i.draww()  # отрисовка еды
